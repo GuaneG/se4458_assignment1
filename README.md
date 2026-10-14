@@ -5,7 +5,11 @@ SE4458 Assignment 2, Group 1. An in-memory REST API for an address book: create,
 | | Link |
 |---|---|
 | Source code | https://github.com/GuaneG/se4458_assignment1 |
-| Live API (Swagger UI) | _TBD: added after deployment_ |
+| Live API (Swagger UI) | https://se4458-assignment1.onrender.com/docs |
+
+> **If the live link does not open:**
+> - The app runs on Render's free tier. After a period of inactivity it goes to sleep, so the first request can take up to a minute while it starts again.
+> - Some networks in Turkey (including some ISPs and campus networks) block `*.onrender.com` addresses; the connection is reset before the page loads. If that happens, please try another network, such as mobile data, or a VPN.
 
 ## Endpoints
 
@@ -109,6 +113,8 @@ Two parts that the template writes by hand come from the framework here: request
 - **Combining filters.** An early version returned as soon as one filter matched, so `?search=...&favorite=true` ignored one of the two filters. The fix was to start from the full list and narrow it step by step, with a single `return` at the end.
 - **Errors only at runtime.** Python has no compile step, so a leftover reference to a deleted variable only failed (`NameError`, `500`) when that endpoint was called. Each change was tested through Swagger and HTTP requests, and the VS Code Problems panel (Pylance) was used to catch this kind of mistake before running the code.
 - **Hidden dependency.** Pydantic's `EmailStr` needs the separate `email-validator` package, so it is listed explicitly in `requirements.txt`.
+- **Render URL blocked on some networks.** After deployment the service was live, but on a home internet connection every request to `*.onrender.com` failed during the TLS handshake (connection reset), while `render.com` itself loaded fine. Connecting to the same server IP with a different host name worked, which showed the block was based on the domain name, not a problem with the app. The same URL worked over mobile data.
+- **Render settings.** The Root Directory field was first set to `app/`. That would have broken both the build (`requirements.txt` is in the repository root) and the start command (`uvicorn app.main:app` must run from the folder that contains `app/`), so it was left empty. The start command uses `--host 0.0.0.0` so the server accepts outside connections, and `--port $PORT` because Render chooses the port through the `PORT` environment variable.
 
 ## Running locally
 
